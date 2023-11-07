@@ -5,5 +5,45 @@ date: "2023-11-07"
 output: github_document
 ---
 
-# Problem 1
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1 
+```{r message=FALSE}
+library(tidyverse)
+
+# dataset preparation
+df_homicide = read_csv("./data/homicide-data.csv") |> 
+  janitor::clean_names() 
+```
+
+The homicide data collected by the Washington Post has `r ncol(df_homicide)` columns and `r nrow(df_homicide)` rows. The data set comprises information of homicide such as incident dates, victim names, their race, gender, location, etc.
+
+```{r}
+df_homicide = df_homicide |>  
+  mutate(
+    city_state = paste(city, state, sep = ", ") # create a city_state variable
+  ) 
+
+# the total number of homicides within cities
+df_homicide |> 
+  group_by(city_state) |> 
+  summarise(n_homicide = n()) |> 
+  arrange(desc(n_homicide))
+
+# the number of unsolved homicides within cities
+df_homicide |> 
+  filter(disposition == "Closed without arrest" | disposition == "Open/No arrest") |> 
+  group_by(city_state) |> 
+  summarise(n_unsolved_homicide = n()) |> 
+  arrange(desc(n_unsolved_homicide))
+```
+
+The above outputs show the total number of homicides and unsolved homicides within cities. We can see that Chicago, IL has the most homicide cases. 
+
+
+
+
+
 
