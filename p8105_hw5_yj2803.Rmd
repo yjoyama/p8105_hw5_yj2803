@@ -20,28 +20,37 @@ df_homicide = read_csv("./data/homicide-data.csv") |>
 
 The homicide data collected by the Washington Post has `r ncol(df_homicide)` columns and `r nrow(df_homicide)` rows. The data set comprises information of homicide such as incident dates, victim names, their race, gender, location, etc.
 
-```{r}
+```{r message=FALSE}
 df_homicide = df_homicide |>  
   mutate(
     city_state = paste(city, state, sep = ", ") # create a city_state variable
   ) 
 
 # the total number of homicides within cities
-df_homicide |> 
+df_n_homicide = df_homicide |> 
   group_by(city_state) |> 
   summarise(n_homicide = n()) |> 
   arrange(desc(n_homicide))
 
 # the number of unsolved homicides within cities
-df_homicide |> 
+df_n_unsolved_homicide = df_homicide |> 
   filter(disposition == "Closed without arrest" | disposition == "Open/No arrest") |> 
   group_by(city_state) |> 
   summarise(n_unsolved_homicide = n()) |> 
   arrange(desc(n_unsolved_homicide))
+
+# combine two data sets
+df_n_homicide = left_join(df_n_homicide, df_n_unsolved_homicide)
+
+df_n_homicide
 ```
 
 The above outputs show the total number of homicides and unsolved homicides within cities. We can see that Chicago, IL has the most homicide cases. 
 
+```{r}
+# estimate the proportion of homicides that are unsolved in Baltimore, MD
+  
+```
 
 
 
