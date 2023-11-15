@@ -78,4 +78,38 @@ unsolved_prop_test |>
 
 The city with the lowest estimate of the proportion for unsolved homicide is Richmond, VA. The city with the highest estimate is Chicago, IL.
 
+# Problem 2
+
+```{r}
+# save file names as a list 
+df_long = tibble(files = list.files(path = "./data/")) |>
+  filter(files != "homicide-data.csv") |> # remove homicide data from problem 1
+  mutate(
+    data = purrr::map_df(files, ~read_csv(file.path("./data/", .))), # import csv files
+    group = case_when(
+      str_starts(files, "con_") ~ "con",
+      str_starts(files, "exp_") ~ "exp"
+    )
+  ) |> 
+  group_by(group) |> 
+  mutate(id = row_number()) |> 
+  ungroup() |> 
+  unnest(data) |> 
+  pivot_longer(
+    cols = starts_with("week"),
+    names_to = "week",
+    values_to = "data"
+  ) |> 
+  mutate(week = as.numeric(str_remove(week, "week_"))) |> # rewrite week_* to * indicating the number of the week
+  select(-files)
+  
+```
+
+
+
+
+
+
+
+
 
