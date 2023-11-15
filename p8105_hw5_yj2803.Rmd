@@ -113,7 +113,10 @@ df_long = tibble(files = list.files(path = "./data/")) |>
 df_long |> 
   ggplot(aes(x = week, y = observations, group = id, color = id)) +
   geom_line() +
-  facet_grid(~arm)
+  facet_grid(~arm) +
+  labs(
+    title = "Longitudinal trend in control and experimental groups"
+  )
 ```
 
 The plots illustrate that the observed values for the experimental group increased significantly over time, whereas the values for the control group remained at the same level.
