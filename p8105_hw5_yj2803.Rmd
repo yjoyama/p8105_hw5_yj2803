@@ -121,7 +121,46 @@ df_long |>
 
 The plots illustrate that the observed values for the experimental group increased significantly over time, whereas the values for the control group remained at the same level.
 
+# Problem 3
 
+```{r}
+# set the design elements
+n = 30
+sigma = 5
+mu = 0
+
+# 5000 datasets from the model x ~ norm(mu, sigma)
+# alpha = 0.05, two-sided one-sample t-test
+sim_df_0 <- tibble(iter = 1:5000, mu = 0) %>%
+  mutate(
+    df_sim = map(iter, \(i) rnorm(n, mean = mu, sd = sigma)),
+    mu_hat = map_dbl(df_sim, mean), # calculate mu_hat for each dataset
+    p_value = map(df_sim, \(df) t.test(df, alternative = "two.sided", mu = 0, conf.level = .95) |> broom::tidy() |> pull(p.value)) # perform t-test, convert outcome to tibble and extract p-value
+  ) |> 
+  unnest(p_value)
+
+# repeat the above for mu = {1, 2, 3, 4, 5, 6}
+output = list()
+
+for (mu_value in 1:6) {
+  sim_results = tibble(iter = 1:5000, mu = mu_value) %>%
+  mutate(
+    df_sim = map(iter, \(i) rnorm(n, mean = mu_value, sd = sigma)),
+    mu_hat = map_dbl(df_sim, mean), # calculate mu_hat for each dataset
+    p_value = map(df_sim, \(df) t.test(df, alternative = "two.sided", mu = mu_value, conf.level = .95) |> broom::tidy() |> pull(p.value)) # perform t-test, convert outcome to tibble and extract p-value
+  ) |> 
+  unnest(p_value)
+  
+  output[[mu_value]] = sim_results
+}
+
+sim_df_1_6 = bind_rows(output) 
+
+# merge sim_df and sim_results_df
+sim_df = bind_rows(sim_df_0, sim_df_1_6)
+
+
+```
 
 
 
