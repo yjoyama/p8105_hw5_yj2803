@@ -80,15 +80,15 @@ The city with the lowest estimate of the proportion for unsolved homicide is Ric
 
 # Problem 2
 
-```{r}
+```{r message=FALSE}
 # save file names as a list 
 df_long = tibble(files = list.files(path = "./data/")) |>
   filter(files != "homicide-data.csv") |> # remove homicide data from problem 1
   mutate(
     data = purrr::map_df(files, ~read_csv(file.path("./data/", .))), # import csv files
     arm = case_when(
-      str_starts(files, "con_") ~ "con",
-      str_starts(files, "exp_") ~ "exp"
+      str_starts(files, "con_") ~ "control",
+      str_starts(files, "exp_") ~ "experiment"
     )
   ) |> 
   group_by(arm) |> 
@@ -98,14 +98,25 @@ df_long = tibble(files = list.files(path = "./data/")) |>
   pivot_longer(
     cols = starts_with("week"),
     names_to = "week",
-    values_to = "obs"
+    values_to = "observations"
   ) |> 
-  mutate(week = as.numeric(str_remove(week, "week_"))) |> # rewrite week_* to * indicating the number of the week
+  mutate(
+    week = as.numeric(str_remove(week, "week_")), # rewrite week_* to * indicating the number of the week
+    id = as.factor(id)
+  ) |> 
   select(-files)
 ```
 
+```{r}
+# visualization - spaghetti plot 
+# obs on each subject over time by groups
+df_long |> 
+  ggplot(aes(x = week, y = observations, group = id, color = id)) +
+  geom_line() +
+  facet_grid(~arm)
+```
 
-
+The plots illustrate that the observed values for the experimental group increased significantly over time, whereas the values for the control group remained at the same level.
 
 
 
